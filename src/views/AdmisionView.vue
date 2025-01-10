@@ -150,14 +150,16 @@
 			</div>
 		</div>
 
-
-
-		<code>{{ formData }}</code>
+		<div class="d-flex justify-content-end mt-3 mb-5">
+			<button class="btn btn-primary" @click="enviarFormAdmision">Guardar</button>
+		</div>
 	</main>
 </template>
 
 <script setup>
 import { ref } from "vue";
+
+import { guardarAdmision } from "../peticiones/guardarAdmision";
 
 const formData = ref({
 	fechaAdmision: '',
@@ -180,6 +182,10 @@ const formData = ref({
 	motivoAdmision: ''
 });
 
+// FUNCTIONS
+const enviarFormAdmision = () => {
+	guardarAdmision(formData.value)
+}
 </script>
 
 <style>
