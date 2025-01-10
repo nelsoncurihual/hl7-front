@@ -4,17 +4,18 @@ import axios from 'axios';
 export const guardarAdmision = async (datos) => {
 
     const backend_url = import.meta.env.VITE_URL_TRANSACCION;
-
+    console.log(backend_url)
+    const token = import.meta.env.VITE_TOKEN_TRANSACCION;
 
     const { data } = await axios.post(
         backend_url,
         {
-            ...generarBundleAdmision(),
+            ...generarBundleAdmision(datos),
         },
         {
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': 'Bearer ' + userData.authToken
+                'Authorization': 'Bearer ' + token
             }
         }
     );
@@ -58,8 +59,8 @@ const generarBundleAdmision = (datos) => {
                                 "coding": [
                                     {
                                         "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSIdentidaddeGenero",
-                                        "code": "2",
-                                        "display": "Femenina"
+                                        "code": datos.identidadGenero.value,
+                                        "display": datos.identidadGenero.label
                                     }
                                 ]
                             }
@@ -70,8 +71,8 @@ const generarBundleAdmision = (datos) => {
                                 "coding": [
                                     {
                                         "system": "http://hl7.org/fhir/administrative-gender",
-                                        "code": "male",
-                                        "display": "Male"
+                                        "code": datos.sexoBiologico.value,
+                                        "display": datos.sexoBiologico.label
                                     }
                                 ]
                             }
@@ -82,8 +83,8 @@ const generarBundleAdmision = (datos) => {
                                 "coding": [
                                     {
                                         "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CodPais",
-                                        "code": "152",
-                                        "display": "Chile"
+                                        "code": datos.residenciaNacionalidad.value,
+                                        "display": datos.residenciaNacionalidad.label
                                     }
                                 ]
                             }
@@ -94,8 +95,8 @@ const generarBundleAdmision = (datos) => {
                                 "coding": [
                                     {
                                         "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CodPais",
-                                        "code": "152",
-                                        "display": "Chile"
+                                        "code": datos.residenciaNacionalidad.value,
+                                        "display": datos.residenciaNacionalidad.label
                                     }
                                 ]
                             }
@@ -112,8 +113,8 @@ const generarBundleAdmision = (datos) => {
                                             "coding": [
                                                 {
                                                     "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CodPais",
-                                                    "code": "152",
-                                                    "display": "Chile"
+                                                    "code": datos.residenciaNacionalidad.value,
+                                                    "display": datos.residenciaNacionalidad.label
                                                 }
                                             ]
                                         }
@@ -128,7 +129,7 @@ const generarBundleAdmision = (datos) => {
                                 ],
                                 "text": "Rol Único Nacional"
                             },
-                            "value": "90.444.444-6",
+                            "value": datos.run,
                             "assigner": {
                                 "display": "Republica de Chile"
                             }
@@ -138,39 +139,36 @@ const generarBundleAdmision = (datos) => {
                     "name": [
                         {
                             "use": "official",
-                            "text": "Peter Juan Parker Willis",
-                            "family": "Parker",
+                            "text": `${datos.nombrePaciente} ${datos.apellidoPaterno} ${datos.apellidoMaterno}`,
+                            "family": datos.apellidoPaterno,
                             "_family": {
                                 "extension": [
                                     {
                                         "url": "https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/SegundoApellido",
-                                        "valueString": "Willis"
+                                        "valueString": datos.apellidoMaterno
                                     }
                                 ]
                             },
-                            "given": [
-                                "Peter",
-                                "Juan"
-                            ]
+                            "given": datos.nombrePaciente.split(' ')
                         },
                         {
                             "use": "usual",
                             "given": [
-                                "Petra"
+                                datos.nombreSocial
                             ]
                         }
                     ],
-                    "gender": "male",
-                    "birthDate": "1990-05-12",
+                    "gender": datos.sexoBiologico.value,
+                    "birthDate": datos.fechaNacimiento,
                     "deceasedBoolean": false,
                     "address": [
                         {
                             "use": "home",
-                            "text": "Calle LosNuevos 123, depto. 208, Los Ángeles",
+                            "text": `Calle ${datos.residenciaCalle} ${datos.residenciaNumero}, depto. 208, ${datos.residenciaCiudad.label}`,
                             "line": [
-                                "Calle LosNuevos 123, depto. 208,"
+                                `Calle ${datos.residenciaCalle} ${datos.residenciaNumero}, depto. 208`
                             ],
-                            "city": "Los Ángeles",
+                            "city": datos.residenciaCiudad.label,
                             "_city": {
                                 "extension": [
                                     {
@@ -179,15 +177,15 @@ const generarBundleAdmision = (datos) => {
                                             "coding": [
                                                 {
                                                     "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodComunasCL",
-                                                    "code": "08301",
-                                                    "display": "Los Ángeles"
+                                                    "code": datos.residenciaCiudad.value,
+                                                    "display": datos.residenciaCiudad.label
                                                 }
                                             ]
                                         }
                                     }
                                 ]
                             },
-                            "district": "Provincia del Biobío",
+                            "district": `Provincia del ${datos.residenciaProvincia.label}`,
                             "_district": {
                                 "extension": [
                                     {
@@ -196,15 +194,15 @@ const generarBundleAdmision = (datos) => {
                                             "coding": [
                                                 {
                                                     "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodProvinciasCL",
-                                                    "code": "083",
-                                                    "display": "Biobío"
+                                                    "code": datos.residenciaProvincia.value,
+                                                    "display": datos.residenciaProvincia.label
                                                 }
                                             ]
                                         }
                                     }
                                 ]
                             },
-                            "state": "Región Del Biobío",
+                            "state": `Región Del ${datos.residenciaProvincia.label}`,
                             "_state": {
                                 "extension": [
                                     {
@@ -214,7 +212,7 @@ const generarBundleAdmision = (datos) => {
                                                 {
                                                     "system": "https://hl7chile.cl/fhir/ig/clcore/CodeSystem/CSCodRegionCL",
                                                     "code": "08",
-                                                    "display": "Del Biobío"
+                                                    "display": `Del ${datos.residenciaProvincia.label}`
                                                 }
                                             ]
                                         }
@@ -227,7 +225,7 @@ const generarBundleAdmision = (datos) => {
                 "request": {
                     "method": "POST",
                     "url": "Patient",
-                    "ifNoneExist": "identifier=90444444-6"
+                    "ifNoneExist": `identifier=${datos.run}`
                 }
             },
             {
@@ -256,7 +254,7 @@ const generarBundleAdmision = (datos) => {
                         {
                             "status": "arrived",
                             "period": {
-                                "start": "2024-12-20T16:00:00-03:00"
+                                "start": `${datos.fechaAdmision}T${datos.horaAdmision}:00-03:00`
                             }
                         }
                     ],
@@ -290,7 +288,7 @@ const generarBundleAdmision = (datos) => {
                                 }
                             ],
                             "period": {
-                                "start": "2024-12-20T16:00:00-03:00"
+                                "start": `${datos.fechaAdmision}T${datos.horaAdmision}:00-03:00`
                             },
                             "individual": {
                                 "reference": "urn:uuid:b80b1243-ada0-4522-ab88-975793b9f28c"
@@ -308,7 +306,7 @@ const generarBundleAdmision = (datos) => {
                                 }
                             ],
                             "period": {
-                                "start": "2024-12-20T16:00:00-03:00"
+                                "start": `${datos.fechaAdmision}T${datos.horaAdmision}:00-03:00`
                             },
                             "individual": {
                                 "reference": "urn:uuid:bcc09879-49cc-4aee-a2de-fc323e2ace00"
@@ -316,7 +314,7 @@ const generarBundleAdmision = (datos) => {
                         }
                     ],
                     "period": {
-                        "start": "2024-12-20T16:00:00-03:00"
+                        "start": `${datos.fechaAdmision}T${datos.horaAdmision}:00-03:00`
                     },
                     "hospitalization": {
                         "extension": [
@@ -403,22 +401,22 @@ const generarBundleAdmision = (datos) => {
                                     }
                                 ]
                             },
-                            "value": "98.888.888-9"
+                            "value": datos.runProfesional
                         }
                     ],
                     "name": [
                         {
-                            "family": "Paris",
+                            "family": datos.paternoProfesional,
                             "_family": {
                                 "extension": [
                                     {
                                         "url": "https://hl7chile.cl/fhir/ig/clcore/StructureDefinition/SegundoApellido",
-                                        "valueString": "Hilton"
+                                        "valueString": datos.maternoProfesional
                                     }
                                 ]
                             },
                             "given": [
-                                "Joaquina"
+                                datos.nombreProfesional
                             ]
                         }
                     ]
@@ -426,7 +424,7 @@ const generarBundleAdmision = (datos) => {
                 "request": {
                     "method": "POST",
                     "url": "Practitioner",
-                    "ifNoneExist": "identifier=98888888-9"
+                    "ifNoneExist": `identifier=${datos.runProfesional}`
                 }
             },
             {
@@ -455,9 +453,9 @@ const generarBundleAdmision = (datos) => {
                     ],
                     "name": [
                         {
-                            "family": "Willis",
+                            "family": datos.apellidoPaternoAcompanante,
                             "given": [
-                                "Rosa"
+                                datos.nombreAcompanante
                             ]
                         }
                     ]
